@@ -1,5 +1,6 @@
 import operator
 
+address_dict = {}
 resource_dict = {}
 
 def parse_line(line):
@@ -29,20 +30,34 @@ def parse_line(line):
     size_start = result_end + 1
     size = line[size_start:]
 
-    if result == '200':
-        return resource
-    else:
-        return ''
+    return [address,
+            timestamp,
+            method,
+            resource,
+            protocol,
+            result,
+            size]
 
 filename = '../logs/access.2009.log'
 with open(filename, 'r', encoding='UTF-8') as file:
     while output := file.readline():
-        resource_new = parse_line(output.rstrip())
-        if resource_new not in resource_dict:
-            resource_dict[resource_new] = 1
+        line_new = parse_line(output.rstrip())
+        if line_new[0] not in address_dict:
+            address_dict[line_new[0]] = 1
         else:
-            current_count = resource_dict[resource_new]
-            resource_dict[resource_new] = current_count+1
+            current_count = address_dict[line_new[0]]
+            address_dict[line_new[0]] = current_count+1
 
-    for resource in sorted(resource_dict.items(), key=operator.itemgetter(1)):
+        if line_new[3] not in resource_dict:
+            resource_dict[line_new[3]] = 1
+        else:
+            current_count = resource_dict[line_new[3]]
+            resource_dict[line_new[3]] = current_count+1
+
+    print('\nVISITED RESOURCES')
+    for resource in reversed(sorted(resource_dict.items(), key=operator.itemgetter(1))):
         print(resource)
+
+    print('\nVISITOR ADDRESSES')
+    for address in reversed(sorted(address_dict.items(), key=operator.itemgetter(1))):
+        print(address)
