@@ -1,4 +1,6 @@
-resource_list = []
+import operator
+
+resource_dict = {}
 
 def parse_line(line):
     address_start = line.find(' ')
@@ -36,8 +38,11 @@ filename = '../logs/access.2009.log'
 with open(filename, 'r', encoding='UTF-8') as file:
     while output := file.readline():
         resource_new = parse_line(output.rstrip())
-        if resource_new not in resource_list:
-            resource_list.append(resource_new)
+        if resource_new not in resource_dict:
+            resource_dict[resource_new] = 1
+        else:
+            current_count = resource_dict[resource_new]
+            resource_dict[resource_new] = current_count+1
 
-    for resource in sorted(resource_list):
+    for resource in sorted(resource_dict.items(), key=operator.itemgetter(1)):
         print(resource)
